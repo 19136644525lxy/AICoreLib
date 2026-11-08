@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+modId = "aicorelib"
+version = "${version}"
+displayName = "AICoreLib"
+description = '''A library that gives any mob a swappable AI brain. Ships the AI Injector and the AI Core, and exposes an extension API for addons.'''
+authors = "AICoreLib"
+
+[[dependencies.aicorelib]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.aicorelib]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.aicorelib]]
+modId = "architectury"
+type = "required"
+versionRange = "[13.0.0,)"
+ordering = "NONE"
+side = "BOTH"

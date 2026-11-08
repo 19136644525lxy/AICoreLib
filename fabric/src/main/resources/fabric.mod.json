@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "aicorelib",
+  "version": "${version}",
+  "name": "AICoreLib",
+  "description": "A library that gives any mob a swappable AI brain. Ships the AI Injector and the AI Core, and exposes an extension API for addons.",
+  "authors": [
+    "AICoreLib"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.aicorelib.fabric.AICoreLibFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "architectury": ">=13.0.0",
+    "fabric-api": "*"
+  }
+}

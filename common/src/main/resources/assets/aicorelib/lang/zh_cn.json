@@ -1,0 +1,10 @@
+{
+  "item.aicorelib.ai_injector": "AI 注入器",
+  "item.aicorelib.ai_core": "AI 核心",
+  "tooltip.aicorelib.ai_injector.1": "右键生物以注入预设 AI",
+  "tooltip.aicorelib.ai_injector.2": "再次右键可解除注入",
+  "tooltip.aicorelib.ai_core.empty": "空的核心",
+  "message.aicorelib.injected": "AI 已注入",
+  "message.aicorelib.removed": "AI 已解除",
+  "message.aicorelib.not_a_mob": "只有生物才能被注入"
+}

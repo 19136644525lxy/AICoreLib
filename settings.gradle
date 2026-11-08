@@ -1,0 +1,27 @@
+pluginManagement {
+    repositories {
+        maven { url "https://maven.fabricmc.net/" }
+        maven { url "https://maven.architectury.dev/" }
+        // maven.neoforged.net is SNI-blocked on this network; the BMCLAPI mirror proxies it.
+        maven { url "https://bmclapi2.bangbang93.com/maven" }
+        maven { url "https://maven.cleanroommc.com/" }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = "aicorelib"
+
+include "common"
+include "fabric"
+include "neoforge"
+
+// Architectury Loom decides its platform from the `loom.platform` project property, and it
+// resolves that property when the plugin is applied (from the root `subprojects` block).
+// Set it per project here, before any project is evaluated.
+gradle.projectsLoaded {
+    gradle.rootProject.allprojects { p ->
+        if (p.name == "neoforge") {
+            p.ext.set("loom.platform", "neoforge")
+        }
+    }
+}

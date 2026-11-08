@@ -1,0 +1,51 @@
+plugins {
+    id "architectury-plugin" version "3.4-SNAPSHOT"
+    id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+}
+
+architectury {
+    minecraft = rootProject.minecraft_version
+}
+
+subprojects {
+    apply plugin: "dev.architectury.loom"
+
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    repositories {
+        maven { url "https://maven.fabricmc.net/" }
+        maven { url "https://maven.architectury.dev/" }
+        // maven.neoforged.net is SNI-blocked on this network; the BMCLAPI mirror proxies it.
+        maven { url "https://bmclapi2.bangbang93.com/maven" }
+        maven { url "https://maven.cleanroommc.com/" }
+        mavenCentral()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings loom.officialMojangMappings()
+    }
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "architectury-plugin"
+
+    version = rootProject.mod_version
+    group = rootProject.maven_group
+
+    base {
+        archivesName = "${rootProject.mod_id}-${project.name}"
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = "UTF-8"
+        options.release = 21
+    }
+
+    java {
+        withSourcesJar()
+    }
+}

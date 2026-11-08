@@ -1,0 +1,10 @@
+{
+  "item.aicorelib.ai_injector": "AI Injector",
+  "item.aicorelib.ai_core": "AI Core",
+  "tooltip.aicorelib.ai_injector.1": "Right-click a mob to inject the preset AI",
+  "tooltip.aicorelib.ai_injector.2": "Right-click again to release it",
+  "tooltip.aicorelib.ai_core.empty": "Empty core",
+  "message.aicorelib.injected": "AI injected",
+  "message.aicorelib.removed": "AI released",
+  "message.aicorelib.not_a_mob": "Only mobs can be injected"
+}
