@@ -2,10 +2,6 @@ architectury {
     common(rootProject.platforms.split(","))
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/aicorelib.accesswidener")
-}
-
 dependencies {
     // Only for @Environment annotations; do not use other fabric-loader classes here.
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"

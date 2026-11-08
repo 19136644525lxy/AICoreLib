@@ -1,4 +1,6 @@
 {
+  "itemGroup.aicorelib": "AICoreLib",
+  "tag.item.aicorelib.ai_injectors": "AI Injectors",
   "item.aicorelib.ai_injector": "AI Injector",
   "item.aicorelib.ai_core": "AI Core",
   "tooltip.aicorelib.ai_injector.1": "Right-click a mob to inject the preset AI",

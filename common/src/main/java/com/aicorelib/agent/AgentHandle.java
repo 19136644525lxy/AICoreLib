@@ -2,6 +2,7 @@ package com.aicorelib.agent;
 
 import com.aicorelib.AICoreLib;
 import com.aicorelib.api.AgentContext;
+import com.aicorelib.mixin.MobGoalSelectorAccessor;
 import com.aicorelib.api.AiApi;
 import com.aicorelib.api.Perception;
 import com.aicorelib.api.Sensor;
@@ -70,7 +71,7 @@ public final class AgentHandle {
         if (attached) {
             return;
         }
-        mob.goalSelector.addGoal(0, goal);
+        ((MobGoalSelectorAccessor) mob).aicorelib$goalSelector().addGoal(0, goal);
         attached = true;
     }
 
@@ -79,7 +80,7 @@ public final class AgentHandle {
         if (!attached) {
             return;
         }
-        mob.goalSelector.removeGoal(goal);
+        ((MobGoalSelectorAccessor) mob).aicorelib$goalSelector().removeGoal(goal);
         brain.stopActiveGoal();
         attached = false;
     }

@@ -103,17 +103,22 @@ public final class ModCommands {
             }
             var perception = handle.context().perception();
             var active = handle.brain().activeGoal();
+            String hostile = perception.nearestHostile() == null
+                    ? "none"
+                    : perception.nearestHostile().getName().getString()
+                            + "@" + String.format("%.1f", perception.nearestHostileDistance());
+            String owner = perception.owner() == null
+                    ? "none"
+                    : perception.owner().getName().getString()
+                            + "@" + String.format("%.1f", perception.ownerDistance());
             String line = String.format(
-                    "[AICoreLib] %s | preset=%s | goal=%s | control=%s | hostile=%s@%.1f | owner=%s@%.1f | health=%.1f/%.1f",
+                    "[AICoreLib] %s | preset=%s | goal=%s | control=%s | hostile=%s | owner=%s | health=%.1f/%.1f",
                     mob.getName().getString(),
                     handle.record().presetId(),
                     active == null ? "none" : active.id().toString(),
                     handle.brain().wantsControl(),
-                    perception.nearestHostile() == null ? "none"
-                            : perception.nearestHostile().getName().getString(),
-                    perception.nearestHostileDistance(),
-                    perception.owner() == null ? "none" : perception.owner().getName().getString(),
-                    perception.ownerDistance(),
+                    hostile,
+                    owner,
                     mob.getHealth(),
                     mob.getMaxHealth());
             source.sendSuccess(() -> Component.literal(line), false);

@@ -9,6 +9,9 @@ displayName = "AICoreLib"
 description = '''A library that gives any mob a swappable AI brain. Ships the AI Injector and the AI Core, and exposes an extension API for addons.'''
 authors = "AICoreLib"
 
+[[mixins]]
+config = "aicorelib.mixins.json"
+
 [[dependencies.aicorelib]]
 modId = "neoforge"
 type = "required"

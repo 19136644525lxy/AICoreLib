@@ -9,6 +9,9 @@
   ],
   "license": "MIT",
   "environment": "*",
+  "mixins": [
+    "aicorelib.mixins.json"
+  ],
   "entrypoints": {
     "main": [
       "com.aicorelib.fabric.AICoreLibFabric"

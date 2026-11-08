@@ -1,4 +1,6 @@
 {
+  "itemGroup.aicorelib": "AICoreLib",
+  "tag.item.aicorelib.ai_injectors": "AI 注入器",
   "item.aicorelib.ai_injector": "AI 注入器",
   "item.aicorelib.ai_core": "AI 核心",
   "tooltip.aicorelib.ai_injector.1": "右键生物以注入预设 AI",
