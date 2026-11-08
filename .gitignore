@@ -31,3 +31,5 @@ hs_err_pid*
 /docs/
 /scripts/
 /tools/
+
+tools/fake_openai_requests.log

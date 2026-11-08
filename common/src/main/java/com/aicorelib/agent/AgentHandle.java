@@ -8,6 +8,7 @@ import com.aicorelib.api.Perception;
 import com.aicorelib.api.Sensor;
 import com.aicorelib.brain.AgentGoal;
 import com.aicorelib.brain.LocalBrain;
+import com.aicorelib.llm.RemoteBrain;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Mob;
 
@@ -23,6 +24,7 @@ public final class AgentHandle {
     private final Mob mob;
     private final AgentContext context;
     private final LocalBrain brain;
+    private final RemoteBrain remote;
     private final AgentGoal goal;
     private AgentRecord record;
     private int sensorCooldown;
@@ -38,6 +40,7 @@ public final class AgentHandle {
         }
         this.context = new AgentContext(mob, presetId, record.owner(), record.hops());
         this.brain = new LocalBrain(context);
+        this.remote = new RemoteBrain(this);
         this.goal = new AgentGoal(this);
         if (record.home() != null) {
             context.perception().setHome(record.home());
@@ -56,6 +59,15 @@ public final class AgentHandle {
 
     public LocalBrain brain() {
         return brain;
+    }
+
+    public RemoteBrain remote() {
+        return remote;
+    }
+
+    /** Whether the remote brain currently owns the body and the claiming goal must stay on. */
+    public boolean remoteActive() {
+        return remote.active();
     }
 
     public AgentRecord record() {
@@ -103,6 +115,8 @@ public final class AgentHandle {
                     perception.setHome(mob.position());
                 }
             }
+            // Remote first: it may suspend the utility loop, or hand it back on expiry.
+            remote.tick(now);
             brain.tick(now);
         } catch (RuntimeException e) {
             // A misbehaving third-party goal must never take the server down.

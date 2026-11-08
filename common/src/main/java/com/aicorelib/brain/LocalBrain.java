@@ -22,9 +22,33 @@ public final class LocalBrain {
     private int ticksRunning;
     private boolean decidedOnce;
     private long lastDecision;
+    private boolean suspended;
 
     public LocalBrain(AgentContext ctx) {
         this.ctx = ctx;
+    }
+
+    /**
+     * Hands the body over to the remote brain (or takes it back).
+     *
+     * <p>While suspended the utility loop does not run at all, so the two brains never
+     * fight over navigation. Suspending stops the running goal immediately; resuming lets
+     * the next tick pick a goal from scratch.</p>
+     */
+    public void setSuspended(boolean value) {
+        if (suspended == value) {
+            return;
+        }
+        suspended = value;
+        if (value) {
+            stopActive();
+        } else {
+            decidedOnce = false;
+        }
+    }
+
+    public boolean suspended() {
+        return suspended;
     }
 
     @Nullable
@@ -39,6 +63,9 @@ public final class LocalBrain {
 
     public void tick(long now) {
         ctx.setTick(now);
+        if (suspended) {
+            return;
+        }
         AiPreset preset = ctx.preset();
         if (preset == null) {
             stopActive();

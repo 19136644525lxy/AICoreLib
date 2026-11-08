@@ -26,12 +26,12 @@ public final class AgentGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return handle.brain().wantsControl();
+        return handle.remoteActive() || handle.brain().wantsControl();
     }
 
     @Override
     public boolean canContinueToUse() {
-        return handle.brain().wantsControl();
+        return handle.remoteActive() || handle.brain().wantsControl();
     }
 
     @Override

@@ -7,6 +7,10 @@ import com.aicorelib.agent.AgentSavedData;
 import com.aicorelib.agent.AgentService;
 import com.aicorelib.api.AiApi;
 import com.aicorelib.api.AiPreset;
+import com.aicorelib.llm.LlmBudget;
+import com.aicorelib.llm.LlmConfig;
+import com.aicorelib.llm.LlmProviders;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import net.minecraft.commands.CommandSourceStack;
@@ -74,6 +78,23 @@ public final class ModCommands {
                                     "[AICoreLib] cleared " + removed + " agent(s)"), true);
                             return removed;
                         }))
+                        .then(Commands.literal("llm")
+                                .then(Commands.literal("status").executes(ctx -> llmStatus(ctx.getSource())))
+                                .then(Commands.literal("reload").executes(ctx -> {
+                                    LlmConfig config = LlmConfig.load();
+                                    LlmBudget.reset();
+                                    ctx.getSource().sendSuccess(() -> Component.literal(
+                                            "[AICoreLib] LLM config reloaded: enabled=" + config.enabled()
+                                                    + " model=" + config.model()
+                                                    + " key=" + config.maskedKey()), false);
+                                    return 1;
+                                })))
+                        .then(Commands.literal("ask")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .then(Commands.argument("text", StringArgumentType.greedyString())
+                                                .executes(ctx -> ask(ctx.getSource(),
+                                                        EntityArgument.getEntities(ctx, "targets"),
+                                                        StringArgumentType.getString(ctx, "text"))))))
                         .then(Commands.literal("presets").executes(ctx -> {
                             ctx.getSource().sendSuccess(() -> Component.literal(
                                     "[AICoreLib] " + AiApi.presets().size() + " preset(s):"), false);
@@ -133,11 +154,12 @@ public final class ModCommands {
                     : perception.owner().getName().getString()
                             + "@" + String.format("%.1f", perception.ownerDistance());
             String line = String.format(
-                    "[AICoreLib] %s | preset=%s | goal=%s | control=%s | hostile=%s | owner=%s | health=%.1f/%.1f",
+                    "[AICoreLib] %s | preset=%s | goal=%s | control=%s | remote=%s | hostile=%s | owner=%s | health=%.1f/%.1f",
                     mob.getName().getString(),
                     handle.record().presetId(),
                     active == null ? "none" : active.id().toString(),
                     handle.brain().wantsControl(),
+                    handle.remoteActive() ? "active" : (handle.brain().suspended() ? "suspended" : "idle"),
                     hostile,
                     owner,
                     mob.getHealth(),
@@ -167,7 +189,60 @@ public final class ModCommands {
         return count;
     }
 
-    private static int remove(CommandSourceStack source, Collection<? extends Entity> targets) {        int count = 0;
+    /** Shows the effective LLM configuration without leaking the key. */
+    private static int llmStatus(CommandSourceStack source) {
+        LlmConfig config = LlmConfig.get();
+        String head = String.format(
+                "[AICoreLib] llm enabled=%s provider=%s model=%s endpoint=%s key=%s",
+                config.enabled(),
+                LlmProviders.get().id(),
+                config.model(),
+                config.endpoint(),
+                config.maskedKey());
+        source.sendSuccess(() -> Component.literal(head), false);
+        source.sendSuccess(() -> Component.literal("[AICoreLib] " + LlmBudget.status()), false);
+        int active = 0;
+        for (Entity entity : source.getLevel().getAllEntities()) {
+            if (entity instanceof Mob mob) {
+                AgentHandle handle = AgentRuntime.handle(mob);
+                if (handle != null && handle.remoteActive()) {
+                    active++;
+                }
+            }
+        }
+        int count = active;
+        source.sendSuccess(() -> Component.literal("[AICoreLib] agents under remote control: " + count), false);
+        return 1;
+    }
+
+    /** Pushes one natural-language order to every targeted agent, bypassing the trigger heuristics. */
+    private static int ask(CommandSourceStack source, Collection<? extends Entity> targets, String instruction) {
+        int count = 0;
+        com.aicorelib.AICoreLib.LOGGER.info("ask: [{}] ({} chars)", instruction, instruction.length());
+        for (Entity target : targets) {
+            if (!(target instanceof Mob mob)) {
+                continue;
+            }
+            AgentHandle handle = AgentRuntime.handle(mob);
+            if (handle == null) {
+                continue;
+            }
+            if (handle.remote().ask(instruction)) {
+                count++;
+            }
+        }
+        int accepted = count;
+        if (accepted == 0) {
+            source.sendFailure(Component.literal(
+                    "[AICoreLib] no request sent (LLM disabled, no key, or an answer is already in flight)"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("[AICoreLib] asked " + accepted + " agent(s): " + instruction), false);
+        return count;
+    }
+
+    private static int remove(CommandSourceStack source, Collection<? extends Entity> targets) {
+        int count = 0;
         for (Entity target : targets) {
             if (target instanceof Mob mob && AgentService.remove(mob)) {
                 count++;

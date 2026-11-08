@@ -3,6 +3,10 @@ package com.aicorelib;
 import com.aicorelib.agent.AgentRuntime;
 import com.aicorelib.core.ModCommands;
 import com.aicorelib.core.ModItems;
+import com.aicorelib.llm.LlmConfig;
+import com.aicorelib.llm.LlmProviders;
+import com.aicorelib.llm.OpenAiProvider;
+import com.aicorelib.preset.AiActions;
 import com.aicorelib.preset.Presets;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,6 +30,9 @@ public final class AICoreLib {
     public static void init() {
         ModItems.init();
         ModCommands.init();
+        LlmConfig.load();
+        LlmProviders.register(new OpenAiProvider());
+        AiActions.register();
         Presets.register();
         AgentRuntime.init();
     }

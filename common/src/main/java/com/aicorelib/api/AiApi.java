@@ -23,6 +23,7 @@ public final class AiApi {
     private static final Map<ResourceLocation, AiAction> ACTIONS = new LinkedHashMap<>();
     private static final Map<ResourceLocation, AiPreset> PRESETS = new LinkedHashMap<>();
     private static final List<Sensor> SENSORS = new ArrayList<>();
+    private static final List<PromptContributor> PROMPT_CONTRIBUTORS = new ArrayList<>();
 
     private AiApi() {
     }
@@ -42,6 +43,10 @@ public final class AiApi {
     public static void registerSensor(Sensor sensor) {
         SENSORS.add(sensor);
         SENSORS.sort((a, b) -> Integer.compare(b.priority(), a.priority()));
+    }
+
+    public static void registerPromptContributor(PromptContributor contributor) {
+        PROMPT_CONTRIBUTORS.add(Objects.requireNonNull(contributor, "contributor"));
     }
 
     @Nullable
@@ -85,5 +90,9 @@ public final class AiApi {
 
     public static List<Sensor> sensors() {
         return List.copyOf(SENSORS);
+    }
+
+    public static List<PromptContributor> promptContributors() {
+        return List.copyOf(PROMPT_CONTRIBUTORS);
     }
 }
