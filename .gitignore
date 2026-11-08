@@ -17,6 +17,12 @@ bin/
 .DS_Store
 Thumbs.db
 
-# Loom
+# Loom / dev runs
 run/
 runs/
+fabric/run/
+neoforge/run/
+fabric/runs/
+neoforge/runs/
+*.log
+hs_err_pid*

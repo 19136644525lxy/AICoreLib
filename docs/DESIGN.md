@@ -364,13 +364,23 @@ timeout_seconds = 8
 
 ## 13. 命令
 
+**M0 已实现**（需要权限等级 2）：
+
+```
+/aicorelib list                       列出所有被注入的 agent
+/aicorelib inject <targets> [preset]  不靠物品，直接把 AI 挂到生物上（管理员/调试）
+/aicorelib remove <targets>           解除指定生物
+/aicorelib clear                      清空全部 agent
+```
+
+**规划中**（M1+）：
+
 ```
 /aicorelib preset list
 /aicorelib preset apply <preset> [targets]
 /aicorelib agent info <target>
 /aicorelib agent pause|resume <target>
 /aicorelib agent memory <target>
-/aicorelib agent remove <target>
 /aicorelib llm test <profile>
 /aicorelib llm budget
 /aicorelib debug on|off
@@ -429,8 +439,9 @@ AICoreLib/
 | M4 打磨 | GUI、权限、上限、命令补全、文档、示例插件 | 第三方模组 30 行代码接入 |
 | M5 发布 | Modrinth/CurseForge、API 文档、兼容矩阵 | — |
 
-**当前进度（M0）**：构建链路已打通，`./gradlew clean build` 产出 `aicorelib-fabric-0.1.0.jar` 与 `aicorelib-neoforge-0.1.0.jar`（各 18 KB，common 类已合并、资源齐全）。注入器/核心物品、注入与解除、`SavedData`、`/aicorelib list|clear` 均已编码。
-**尚未验证**：以上功能只在编译层面成立，**一次游戏内运行测试都没做过**（M0 的验收标准「重启服务器后 agent 仍在」还没跑）。
+**当前进度（M0 已验收）**：构建链路打通，`./gradlew clean build` 产出 `aicorelib-fabric-0.1.0.jar` 与 `aicorelib-neoforge-0.1.0.jar`（各 18 KB，common 类已合并、资源齐全）。
+运行时已在 Fabric 开发服务器实测：mod 正常加载（46 个 mod 无异常）；注入器与 AI 核心物品注册成功（`/summon` 出实体物品）；`/aicorelib inject|remove|list|clear` 全部按预期返回；agent 记录写入 `world/data/aicorelib_agents.dat`（155 B），**服务器完整重启后 `/aicorelib list` 仍能读回同一条记录**——M0 验收标准达成。
+**尚未验证**：NeoForge 端只验证到编译，没有跑过运行时；注入器的右键交互（`interactLivingEntity`）没有真人玩家点过，只验证了命令路径。
 
 ---
 

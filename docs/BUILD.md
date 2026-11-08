@@ -33,6 +33,49 @@ cd F:\AICoreLib
 
 ---
 
+## 2.5 运行时自测（dev 服务器 + RCON）
+
+开发服务器跑 `:fabric:runServer`，用 RCON 发指令做冒烟测试，不需要真人登录。
+
+一次性准备（`fabric/run/` 不进版本库）：
+
+```powershell
+New-Item -ItemType Directory -Force fabric\run
+"eula=true" | Set-Content fabric\run\eula.txt -Encoding ascii
+@'
+online-mode=false
+level-type=minecraft\:flat
+enable-rcon=true
+rcon.port=25575
+rcon.password=aicoretest
+'@ | Set-Content fabric\run\server.properties -Encoding ascii
+```
+
+启动与测试：
+
+```powershell
+.\gradlew.bat :fabric:runServer --no-daemon --console=plain    # 等日志出现 "RCON running on"
+.\scripts\rcon.ps1 -Commands @('aicorelib list','summon minecraft:pig 0 -60 0','aicorelib inject @e[type=minecraft:pig]')
+```
+
+`scripts/rcon.ps1` 是零依赖的 RCON 客户端（纯 PowerShell TCP），`-Commands` 接收命令数组，不要写前导 `/`。
+
+**已验证过的路径**（Fabric 1.21.1 dev）：
+- mod 加载无异常，46 个 mod 共存；
+- `ai_injector` / `ai_core` 物品注册成功（`/summon minecraft:item ... {Item:{id:"aicorelib:ai_injector"}}` 能生成）；
+- `inject` / `remove` / `list` / `clear` 四个子命令行为正确，计数与 UUID 输出正确；
+- `world/data/aicorelib_agents.dat` 落盘，**重启服务器后记录仍在**（M0 验收点）。
+
+**已知怪癖**：RCON `stop` 之后服务器线程会正常收尾，但 loom 开发态 JVM 有时不退出，需要手动结束进程：
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='java.exe'" |
+  Where-Object { $_.CommandLine -like "*architectury.main.class*" } |
+  ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+```
+
+---
+
 ## 3. 工具链版本
 
 | 组件 | 版本 | 备注 |
