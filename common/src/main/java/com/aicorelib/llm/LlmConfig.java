@@ -42,7 +42,7 @@ public record LlmConfig(
 
     public static LlmConfig defaults() {
         return new LlmConfig(false, "https://api.openai.com/v1", "gpt-4o-mini", "", "AICORELIB_API_KEY",
-                0.4D, 256, 8, 30, 200_000, 20_000, 32, true, 200, 160);
+                0.4D, 512, 8, 30, 200_000, 20_000, 32, true, 200, 160);
     }
 
     public static LlmConfig get() {

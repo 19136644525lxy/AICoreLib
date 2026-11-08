@@ -70,6 +70,11 @@ public final class AgentHandle {
         return remote.active();
     }
 
+    /** The action the model ordered, or {@code null} when the rule brain is in charge. */
+    public net.minecraft.resources.ResourceLocation remoteAction() {
+        return remote.activeAction();
+    }
+
     public AgentRecord record() {
         return record;
     }

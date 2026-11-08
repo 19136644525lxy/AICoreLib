@@ -153,13 +153,17 @@ public final class ModCommands {
                     ? "none"
                     : perception.owner().getName().getString()
                             + "@" + String.format("%.1f", perception.ownerDistance());
+            String remote = handle.brain().suspended() ? "suspended" : "idle";
+            if (handle.remoteAction() != null) {
+                remote = "active(" + handle.remoteAction() + ")";
+            }
             String line = String.format(
                     "[AICoreLib] %s | preset=%s | goal=%s | control=%s | remote=%s | hostile=%s | owner=%s | health=%.1f/%.1f",
                     mob.getName().getString(),
                     handle.record().presetId(),
                     active == null ? "none" : active.id().toString(),
                     handle.brain().wantsControl(),
-                    handle.remoteActive() ? "active" : (handle.brain().suspended() ? "suspended" : "idle"),
+                    remote,
                     hostile,
                     owner,
                     mob.getHealth(),

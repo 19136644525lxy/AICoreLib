@@ -46,6 +46,8 @@ public final class RemoteBrain {
     private long lastRequestTick = Long.MIN_VALUE;
     private String lastSituation = "";
     private String lastError = "";
+    /** Set while a request started by {@code /aicorelib ask} is in flight, so silence gets reported. */
+    private volatile boolean explicit;
 
     public RemoteBrain(AgentHandle handle) {
         this.handle = handle;
@@ -54,6 +56,13 @@ public final class RemoteBrain {
     /** Whether the remote brain currently owns the body. */
     public boolean active() {
         return directive != null;
+    }
+
+    /** The action currently being executed, for {@code /aicorelib debug}. */
+    @Nullable
+    public ResourceLocation activeAction() {
+        AiDirective current = directive;
+        return current == null ? null : current.actionId();
     }
 
     /** Called once per server tick from {@link AgentHandle#tick(long)}. */
@@ -111,6 +120,7 @@ public final class RemoteBrain {
         String situation = Prompts.situation(handle.context());
         lastSituation = situation;
         lastRequestTick = handle.context().tick();
+        explicit = true;
         send(Prompts.system(handle.context()) + "\n\n" + situation, instruction);
         return true;
     }
@@ -156,13 +166,24 @@ public final class RemoteBrain {
             }
             LlmBudget.recordSuccess(handle.mob().getUUID(), response.totalTokens());
             lastError = "";
+            boolean wasExplicit = explicit;
+            explicit = false;
             LlmMessage.ToolCall call = response.firstToolCall();
             if (call == null) {
+                if (wasExplicit) {
+                    // Reasoning models burn the whole budget on thinking and answer with nothing;
+                    // say so instead of leaving the admin wondering why the mob ignored them.
+                    String text = response.content() == null ? "" : response.content().strip();
+                    AICoreLib.LOGGER.info("LLM returned no action ({} completion tokens): {}",
+                            response.completionTokens(),
+                            text.isEmpty() ? "<empty>" : text.substring(0, Math.min(160, text.length())));
+                }
                 return;
             }
             ResourceLocation actionId = Prompts.actionFor(call.name());
             if (actionId == null) {
                 lastError = "unknown tool: " + call.name();
+                AICoreLib.LOGGER.warn("LLM asked for unknown tool '{}'", call.name());
                 return;
             }
             pendingAction = actionId;
@@ -203,6 +224,13 @@ public final class RemoteBrain {
         try {
             if (action.canRun(handle.context())) {
                 action.run(handle.context(), current.args());
+            } else {
+                // The model picked something this body cannot do (a pig asked to attack, say).
+                // Hand control back at once instead of spinning until the directive expires.
+                AICoreLib.LOGGER.info("LLM chose {} but {} cannot run it; handing back to the rule brain",
+                        current.actionId(), handle.mob().getUUID());
+                directive = null;
+                handle.brain().setSuspended(false);
             }
         } catch (RuntimeException e) {
             // A third-party action throwing must not kill the agent; drop the directive.
