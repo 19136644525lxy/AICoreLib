@@ -26,3 +26,7 @@ fabric/runs/
 neoforge/runs/
 *.log
 hs_err_pid*
+
+# local-only: design notes and dev scripts stay off the repo
+/docs/
+/scripts/
