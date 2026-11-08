@@ -1,0 +1,4 @@
+accessWidener v2 named
+
+# Baseline access: the AI layer has to add/remove a goal on any Mob.
+accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;

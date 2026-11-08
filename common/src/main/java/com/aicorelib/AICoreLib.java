@@ -1,7 +1,9 @@
 package com.aicorelib;
 
+import com.aicorelib.agent.AgentRuntime;
 import com.aicorelib.core.ModCommands;
 import com.aicorelib.core.ModItems;
+import com.aicorelib.preset.Presets;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -12,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class AICoreLib {
     public static final String MOD_ID = "aicorelib";
+    public static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("AICoreLib");
 
     private AICoreLib() {
     }
@@ -23,5 +26,7 @@ public final class AICoreLib {
     public static void init() {
         ModItems.init();
         ModCommands.init();
+        Presets.register();
+        AgentRuntime.init();
     }
 }

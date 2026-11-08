@@ -37,7 +37,30 @@ public final class AgentService {
             return false;
         }
         String entityType = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
-        data.put(id, new AgentRecord(presetId, owner, entityType, server.overworld().getGameTime()));
+        AgentRecord record = AgentRecord.create(presetId, owner, entityType,
+                server.overworld().getGameTime(), mob.position());
+        data.put(id, record);
+        AgentRuntime.track(mob, record);
+        return true;
+    }
+
+    /**
+     * Brings {@code mob} under AI control with a pre-built record (used by core transfer).
+     *
+     * @return {@code true} if the mob was not already an agent
+     */
+    public static boolean inject(Mob mob, AgentRecord record) {
+        MinecraftServer server = mob.getServer();
+        if (server == null) {
+            return false;
+        }
+        AgentSavedData data = AgentSavedData.get(server);
+        UUID id = mob.getUUID();
+        if (data.isInjected(id)) {
+            return false;
+        }
+        data.put(id, record);
+        AgentRuntime.track(mob, record);
         return true;
     }
 
@@ -51,6 +74,7 @@ public final class AgentService {
         if (server == null) {
             return false;
         }
+        AgentRuntime.untrack(mob);
         return AgentSavedData.get(server).remove(mob.getUUID());
     }
 

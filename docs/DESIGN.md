@@ -439,9 +439,11 @@ AICoreLib/
 | M4 打磨 | GUI、权限、上限、命令补全、文档、示例插件 | 第三方模组 30 行代码接入 |
 | M5 发布 | Modrinth/CurseForge、API 文档、兼容矩阵 | — |
 
-**当前进度（M0 已验收）**：构建链路打通，`./gradlew clean build` 产出 `aicorelib-fabric-0.1.0.jar` 与 `aicorelib-neoforge-0.1.0.jar`（各 18 KB，common 类已合并、资源齐全）。
-运行时已在 Fabric 开发服务器实测：mod 正常加载（46 个 mod 无异常）；注入器与 AI 核心物品注册成功（`/summon` 出实体物品）；`/aicorelib inject|remove|list|clear` 全部按预期返回；agent 记录写入 `world/data/aicorelib_agents.dat`（155 B），**服务器完整重启后 `/aicorelib list` 仍能读回同一条记录**——M0 验收标准达成。
-**尚未验证**：NeoForge 只跑到「开发服务器能启动、AICoreLib 出现在 mod 列表里、`Done (7.7s)`」，没有在 NeoForge 上重跑命令/持久化测试；注入器的右键交互（`interactLivingEntity`）没有真人玩家点过，只验证了命令路径。
+**当前进度（M1 功能完成，待真人验收）**：M0 已验收（构建链路 + 双端启动 + 持久化）。M1 已实现并编译通过：`LocalBrain`（score × weight + 0.10 迟滞 + minDuration 锁定）、4 个内置 goal（follow_owner / attack_hostile / retreat / patrol）、4 个内置预设（guard / companion / sentry / blank）、`AgentGoal` 只占 MOVE+LOOK+TARGET flag、AI 核心掉落与迁移（`aicorelib:agent_snapshot` 数据组件 + 60% 记忆 + 20 好感 + 3 代上限）、`/aicorelib debug|inject|remove|list|clear`。
+
+Fabric dev 服务器实测通过：狼（guard）发现 4 格外僵尸 → 选 `attack_hostile`、逼近到 2.4 格、把僵尸从 20 HP 打到 0.32 HP；受伤到 2/8 HP 后切 `retreat` 并跑到 10 格外；`remove` 后立刻停止行为、`debug` 显示 not tracked；非玩家击杀（`/kill`）不掉落核心且记录被清理。**核心掉落与安装的正向路径、owner 跟随、注入器右键交互仍需真人玩家在客户端验证**（开发服务器没有玩家实体）。
+
+**尚未验证**：NeoForge 只跑到「开发服务器能启动、AICoreLib 出现在 mod 列表里、`Done (7.7s)`」，没有在 NeoForge 上重跑命令/持久化测试。
 
 ---
 

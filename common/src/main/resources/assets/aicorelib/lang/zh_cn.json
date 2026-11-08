@@ -4,7 +4,13 @@
   "tooltip.aicorelib.ai_injector.1": "右键生物以注入预设 AI",
   "tooltip.aicorelib.ai_injector.2": "再次右键可解除注入",
   "tooltip.aicorelib.ai_core.empty": "空的核心",
+  "tooltip.aicorelib.ai_core.preset": "预设：%s",
+  "tooltip.aicorelib.ai_core.lineage": "第 %s/%s 代",
+  "tooltip.aicorelib.ai_core.damaged": "已损坏 — 无法再注入",
   "message.aicorelib.injected": "AI 已注入",
   "message.aicorelib.removed": "AI 已解除",
-  "message.aicorelib.not_a_mob": "只有生物才能被注入"
+  "message.aicorelib.not_a_mob": "只有生物才能被注入",
+  "message.aicorelib.core_damaged": "这颗核心已经损坏",
+  "message.aicorelib.core_installed": "AI 核心已注入",
+  "message.aicorelib.already_agent": "这个生物已经有 AI 了"
 }

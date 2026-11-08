@@ -33,5 +33,6 @@ public final class ModItems {
 
     public static void init() {
         ITEMS.register();
+        ModComponents.init();
     }
 }

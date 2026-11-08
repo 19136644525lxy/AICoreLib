@@ -4,7 +4,13 @@
   "tooltip.aicorelib.ai_injector.1": "Right-click a mob to inject the preset AI",
   "tooltip.aicorelib.ai_injector.2": "Right-click again to release it",
   "tooltip.aicorelib.ai_core.empty": "Empty core",
+  "tooltip.aicorelib.ai_core.preset": "Preset: %s",
+  "tooltip.aicorelib.ai_core.lineage": "Lineage %s/%s",
+  "tooltip.aicorelib.ai_core.damaged": "Damaged - cannot be installed",
   "message.aicorelib.injected": "AI injected",
   "message.aicorelib.removed": "AI released",
-  "message.aicorelib.not_a_mob": "Only mobs can be injected"
+  "message.aicorelib.not_a_mob": "Only mobs can be injected",
+  "message.aicorelib.core_damaged": "This core is damaged",
+  "message.aicorelib.core_installed": "AI core installed",
+  "message.aicorelib.already_agent": "That mob already has an AI"
 }

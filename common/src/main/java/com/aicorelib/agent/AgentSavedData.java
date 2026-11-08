@@ -53,6 +53,10 @@ public class AgentSavedData extends SavedData {
         return Collections.unmodifiableMap(agents);
     }
 
+    public java.util.Set<UUID> ids() {
+        return java.util.Set.copyOf(agents.keySet());
+    }
+
     public boolean isInjected(UUID uuid) {
         return agents.containsKey(uuid);
     }

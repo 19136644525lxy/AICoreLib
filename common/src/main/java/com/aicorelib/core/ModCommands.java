@@ -1,14 +1,16 @@
 package com.aicorelib.core;
 
+import com.aicorelib.agent.AgentHandle;
 import com.aicorelib.agent.AgentRecord;
+import com.aicorelib.agent.AgentRuntime;
 import com.aicorelib.agent.AgentSavedData;
 import com.aicorelib.agent.AgentService;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -50,13 +52,17 @@ public final class ModCommands {
                                         .executes(ctx -> inject(ctx.getSource(),
                                                 EntityArgument.getEntities(ctx, "targets"),
                                                 AgentRecord.DEFAULT_PRESET))
-                                        .then(Commands.argument("preset", StringArgumentType.string())
+                                        .then(Commands.argument("preset", ResourceLocationArgument.id())
                                                 .executes(ctx -> inject(ctx.getSource(),
                                                         EntityArgument.getEntities(ctx, "targets"),
-                                                        StringArgumentType.getString(ctx, "preset"))))))
+                                                        ResourceLocationArgument.getId(ctx, "preset").toString())))))
                         .then(Commands.literal("remove")
                                 .then(Commands.argument("targets", EntityArgument.entities())
                                         .executes(ctx -> remove(ctx.getSource(),
+                                                EntityArgument.getEntities(ctx, "targets")))))
+                        .then(Commands.literal("debug")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .executes(ctx -> debug(ctx.getSource(),
                                                 EntityArgument.getEntities(ctx, "targets")))))
                         .then(Commands.literal("clear").executes(ctx -> {
                             AgentSavedData data = AgentSavedData.get(ctx.getSource().getServer());
@@ -82,8 +88,41 @@ public final class ModCommands {
         return count;
     }
 
-    private static int remove(CommandSourceStack source, Collection<? extends Entity> targets) {
+    /** Dumps what the brain currently sees; used while tuning the utility AI. */
+    private static int debug(CommandSourceStack source, Collection<? extends Entity> targets) {
         int count = 0;
+        for (Entity target : targets) {
+            if (!(target instanceof Mob mob)) {
+                continue;
+            }
+            AgentHandle handle = AgentRuntime.handle(mob);
+            if (handle == null) {
+                source.sendSuccess(() -> Component.literal("[AICoreLib] " + mob.getName().getString()
+                        + " is not tracked"), false);
+                continue;
+            }
+            var perception = handle.context().perception();
+            var active = handle.brain().activeGoal();
+            String line = String.format(
+                    "[AICoreLib] %s | preset=%s | goal=%s | control=%s | hostile=%s@%.1f | owner=%s@%.1f | health=%.1f/%.1f",
+                    mob.getName().getString(),
+                    handle.record().presetId(),
+                    active == null ? "none" : active.id().toString(),
+                    handle.brain().wantsControl(),
+                    perception.nearestHostile() == null ? "none"
+                            : perception.nearestHostile().getName().getString(),
+                    perception.nearestHostileDistance(),
+                    perception.owner() == null ? "none" : perception.owner().getName().getString(),
+                    perception.ownerDistance(),
+                    mob.getHealth(),
+                    mob.getMaxHealth());
+            source.sendSuccess(() -> Component.literal(line), false);
+            count++;
+        }
+        return count;
+    }
+
+    private static int remove(CommandSourceStack source, Collection<? extends Entity> targets) {        int count = 0;
         for (Entity target : targets) {
             if (target instanceof Mob mob && AgentService.remove(mob)) {
                 count++;
