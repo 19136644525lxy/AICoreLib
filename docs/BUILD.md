@@ -58,7 +58,9 @@ rcon.password=aicoretest
 .\scripts\rcon.ps1 -Commands @('aicorelib list','summon minecraft:pig 0 -60 0','aicorelib inject @e[type=minecraft:pig]')
 ```
 
-`scripts/rcon.ps1` 是零依赖的 RCON 客户端（纯 PowerShell TCP），`-Commands` 接收命令数组，不要写前导 `/`。
+`.scripts/rcon.ps1` 是零依赖的 RCON 客户端（纯 PowerShell TCP），`-Commands` 接收命令数组，不要写前导 `/`。
+
+NeoForge 端用 `.\gradlew.bat :neoforge:runServer` 启动；它的 `run/` 目录默认没有 `server.properties`（日志里 `Failed to load properties from file: server.properties` 是**正常**的，会用默认值继续），需要 RCON 时按上面同样的方式放一份。
 
 **已验证过的路径**（Fabric 1.21.1 dev）：
 - mod 加载无异常，46 个 mod 共存；

@@ -441,7 +441,7 @@ AICoreLib/
 
 **当前进度（M0 已验收）**：构建链路打通，`./gradlew clean build` 产出 `aicorelib-fabric-0.1.0.jar` 与 `aicorelib-neoforge-0.1.0.jar`（各 18 KB，common 类已合并、资源齐全）。
 运行时已在 Fabric 开发服务器实测：mod 正常加载（46 个 mod 无异常）；注入器与 AI 核心物品注册成功（`/summon` 出实体物品）；`/aicorelib inject|remove|list|clear` 全部按预期返回；agent 记录写入 `world/data/aicorelib_agents.dat`（155 B），**服务器完整重启后 `/aicorelib list` 仍能读回同一条记录**——M0 验收标准达成。
-**尚未验证**：NeoForge 端只验证到编译，没有跑过运行时；注入器的右键交互（`interactLivingEntity`）没有真人玩家点过，只验证了命令路径。
+**尚未验证**：NeoForge 只跑到「开发服务器能启动、AICoreLib 出现在 mod 列表里、`Done (7.7s)`」，没有在 NeoForge 上重跑命令/持久化测试；注入器的右键交互（`interactLivingEntity`）没有真人玩家点过，只验证了命令路径。
 
 ---
 
