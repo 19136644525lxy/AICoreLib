@@ -5,6 +5,8 @@ import com.aicorelib.agent.AgentRecord;
 import com.aicorelib.agent.AgentRuntime;
 import com.aicorelib.agent.AgentSavedData;
 import com.aicorelib.agent.AgentService;
+import com.aicorelib.api.AiApi;
+import com.aicorelib.api.AiPreset;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import net.minecraft.commands.CommandSourceStack;
@@ -12,6 +14,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 
@@ -70,7 +73,25 @@ public final class ModCommands {
                             ctx.getSource().sendSuccess(() -> Component.literal(
                                     "[AICoreLib] cleared " + removed + " agent(s)"), true);
                             return removed;
-                        }))));
+                        }))
+                        .then(Commands.literal("presets").executes(ctx -> {
+                            ctx.getSource().sendSuccess(() -> Component.literal(
+                                    "[AICoreLib] " + AiApi.presets().size() + " preset(s):"), false);
+                            for (AiPreset preset : AiApi.presets()) {
+                                ctx.getSource().sendSuccess(() -> Component.literal(" - " + preset.id()
+                                        + " | " + preset.displayName()
+                                        + " | goals=" + preset.goals().size()
+                                        + " | speed=" + preset.speed()
+                                        + " | interval=" + preset.decisionIntervalTicks()), false);
+                            }
+                            return AiApi.presets().size();
+                        }))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .then(Commands.argument("preset", ResourceLocationArgument.id())
+                                                .executes(ctx -> setPreset(ctx.getSource(),
+                                                        EntityArgument.getEntities(ctx, "targets"),
+                                                        ResourceLocationArgument.getId(ctx, "preset").toString())))))));
     }
 
     private static int inject(CommandSourceStack source, Collection<? extends Entity> targets, String preset)
@@ -124,6 +145,25 @@ public final class ModCommands {
             source.sendSuccess(() -> Component.literal(line), false);
             count++;
         }
+        return count;
+    }
+
+    /** Swaps the preset of already-injected mobs; handy for iterating on data pack presets. */
+    private static int setPreset(CommandSourceStack source, Collection<? extends Entity> targets, String presetId) {
+        ResourceLocation parsed = ResourceLocation.tryParse(presetId);
+        if (parsed == null || AiApi.preset(parsed) == null) {
+            source.sendFailure(Component.literal("[AICoreLib] unknown preset: " + presetId));
+            return 0;
+        }
+        int count = 0;
+        for (Entity target : targets) {
+            if (target instanceof Mob mob && AgentService.reassign(mob, presetId)) {
+                count++;
+            }
+        }
+        int total = count;
+        source.sendSuccess(() -> Component.literal(
+                "[AICoreLib] applied " + presetId + " to " + total + " agent(s)"), true);
         return count;
     }
 

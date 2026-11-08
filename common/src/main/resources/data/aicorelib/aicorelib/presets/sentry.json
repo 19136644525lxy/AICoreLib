@@ -1,0 +1,12 @@
+{
+  "display_name": "Sentry",
+  "goals": [
+    { "goal": "aicorelib:attack_hostile", "weight": 1.0 },
+    { "goal": "aicorelib:retreat", "weight": 0.6 },
+    { "goal": "aicorelib:patrol", "weight": 0.5 }
+  ],
+  "follow_range": 20.0,
+  "speed": 0.9,
+  "allow_pvp": false,
+  "decision_interval": 10
+}

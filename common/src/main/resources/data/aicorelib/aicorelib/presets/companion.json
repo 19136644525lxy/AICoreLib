@@ -1,0 +1,13 @@
+{
+  "display_name": "Companion",
+  "goals": [
+    { "goal": "aicorelib:follow_owner", "weight": 1.0 },
+    { "goal": "aicorelib:retreat", "weight": 1.0 },
+    { "goal": "aicorelib:attack_hostile", "weight": 0.55 },
+    { "goal": "aicorelib:patrol", "weight": 0.2 }
+  ],
+  "follow_range": 12.0,
+  "speed": 1.15,
+  "allow_pvp": false,
+  "decision_interval": 10
+}

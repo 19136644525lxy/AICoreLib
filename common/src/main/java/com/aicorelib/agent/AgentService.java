@@ -79,6 +79,32 @@ public final class AgentService {
     }
 
     /**
+     * Swaps the preset of an existing agent, keeping owner, home, lineage and memory.
+     *
+     * @return {@code true} if the mob was an agent
+     */
+    public static boolean reassign(Mob mob, String presetId) {
+        MinecraftServer server = mob.getServer();
+        if (server == null) {
+            return false;
+        }
+        AgentSavedData data = AgentSavedData.get(server);
+        UUID id = mob.getUUID();
+        AgentRecord existing = data.agents().get(id);
+        if (existing == null) {
+            return false;
+        }
+        AgentRecord updated = new AgentRecord(presetId, existing.owner(), existing.entityType(),
+                existing.injectedAt(), existing.home(), existing.hops(),
+                existing.memorySummary(), existing.affection());
+        data.put(id, updated);
+        // The context captures the preset id, so the handle has to be rebuilt.
+        AgentRuntime.untrack(mob);
+        AgentRuntime.track(mob, updated);
+        return true;
+    }
+
+    /**
      * Item behaviour: toggle between injected and released.
      */
     public static InteractionResult toggle(Player player, Mob mob) {

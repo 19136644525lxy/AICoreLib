@@ -1,0 +1,13 @@
+{
+  "display_name": "Guard",
+  "goals": [
+    { "goal": "aicorelib:attack_hostile", "weight": 1.0 },
+    { "goal": "aicorelib:retreat", "weight": 1.0 },
+    { "goal": "aicorelib:follow_owner", "weight": 0.8 },
+    { "goal": "aicorelib:patrol", "weight": 0.3 }
+  ],
+  "follow_range": 16.0,
+  "speed": 1.0,
+  "allow_pvp": false,
+  "decision_interval": 10
+}

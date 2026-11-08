@@ -2,6 +2,7 @@ package com.aicorelib.api;
 
 import net.minecraft.resources.ResourceLocation;
 
+import com.aicorelib.preset.PresetRegistry;
 import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +56,14 @@ public final class AiApi {
 
     @Nullable
     public static AiPreset preset(ResourceLocation id) {
+        // Data packs win over code so /reload can replace a built-in preset.
+        AiPreset fromDataPack = PresetRegistry.fromDataPack(id);
+        return fromDataPack != null ? fromDataPack : PRESETS.get(id);
+    }
+
+    /** Code-registered preset, ignoring data packs. Used by the loader to resolve {@code extends}. */
+    @Nullable
+    public static AiPreset codePreset(ResourceLocation id) {
         return PRESETS.get(id);
     }
 
@@ -67,7 +76,11 @@ public final class AiApi {
     }
 
     public static Collection<AiPreset> presets() {
-        return List.copyOf(PRESETS.values());
+        Map<ResourceLocation, AiPreset> merged = new LinkedHashMap<>(PRESETS);
+        for (AiPreset preset : PresetRegistry.dataPackPresets()) {
+            merged.put(preset.id(), preset);
+        }
+        return List.copyOf(merged.values());
     }
 
     public static List<Sensor> sensors() {

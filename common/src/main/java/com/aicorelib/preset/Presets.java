@@ -31,10 +31,14 @@ public final class Presets {
         AiApi.registerGoal(new Retreat());
         AiApi.registerGoal(new Patrol());
 
+        // Fallbacks, replaced by the shipped JSON on the first data pack reload. Keeping them
+        // in code means a broken data pack can never leave the mod without a working preset.
         AiApi.registerPreset(guard());
         AiApi.registerPreset(companion());
         AiApi.registerPreset(sentry());
         AiApi.registerPreset(blank());
+
+        PresetLoader.register();
     }
 
     /** Balanced bodyguard: fights, retreats when hurt, follows the owner, light patrol. */

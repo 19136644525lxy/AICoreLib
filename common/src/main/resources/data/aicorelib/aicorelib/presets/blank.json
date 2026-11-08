@@ -1,0 +1,10 @@
+{
+  "display_name": "Blank",
+  "goals": [
+    { "goal": "aicorelib:patrol", "weight": 0.2 }
+  ],
+  "follow_range": 8.0,
+  "speed": 0.8,
+  "allow_pvp": false,
+  "decision_interval": 20
+}
