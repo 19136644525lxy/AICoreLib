@@ -1,6 +1,7 @@
 package com.aicorelib;
 
 import com.aicorelib.agent.AgentRuntime;
+import com.aicorelib.core.AICoreSettings;
 import com.aicorelib.core.ModCommands;
 import com.aicorelib.core.ModItems;
 import com.aicorelib.llm.LlmConfig;
@@ -30,6 +31,7 @@ public final class AICoreLib {
     public static void init() {
         ModItems.init();
         ModCommands.init();
+        AICoreSettings.load();
         LlmConfig.load();
         LlmProviders.register(new OpenAiProvider());
         AiActions.register();

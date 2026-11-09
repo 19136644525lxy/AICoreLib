@@ -14,5 +14,8 @@
   "message.aicorelib.not_a_mob": "只有生物才能被注入",
   "message.aicorelib.core_damaged": "这颗核心已经损坏",
   "message.aicorelib.core_installed": "AI 核心已注入",
-  "message.aicorelib.already_agent": "这个生物已经有 AI 了"
+  "message.aicorelib.already_agent": "这个生物已经有 AI 了",
+  "message.aicorelib.limit_total": "已达到服务器 AI 数量上限",
+  "message.aicorelib.limit_owner": "你名下的 AI 数量已达上限",
+  "message.aicorelib.denied_type": "这种生物无法承载 AI"
 }

@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * A named bundle of goals and tuning parameters.
  *
- * <p>M1 ships these in code; M2 loads the same shape from {@code data/<ns>/ai_core/presets/*.json}
- * and lets data packs override the built-ins.</p>
+ * <p>M1 ships these in code; M2 loads the same shape from
+ * {@code data/<ns>/aicorelib/presets/*.json} and lets data packs override the built-ins.</p>
  */
 public record AiPreset(
         ResourceLocation id,

@@ -80,6 +80,16 @@ public final class AgentRuntime {
         }
     }
 
+    /** Releases every tracked agent; used by {@code /aicorelib clear}. */
+    public static int untrackAll() {
+        int count = HANDLES.size();
+        for (AgentHandle handle : new ArrayList<>(HANDLES.values())) {
+            handle.detach();
+        }
+        HANDLES.clear();
+        return count;
+    }
+
     private static void attachIfInjected(Mob mob) {
         MinecraftServer server = mob.getServer();
         if (server == null || HANDLES.containsKey(mob.getUUID())) {

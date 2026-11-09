@@ -48,6 +48,12 @@ public final class RemoteBrain {
     private String lastError = "";
     /** Set while a request started by {@code /aicorelib ask} is in flight, so silence gets reported. */
     private volatile boolean explicit;
+    /** Who typed {@code /aicorelib ask}, so a text-only answer can be echoed back to them. */
+    @Nullable
+    private volatile java.util.UUID requesterId;
+    /** A reply written by the HTTP thread, delivered on the server thread by {@link #consumeReply()}. */
+    @Nullable
+    private volatile String pendingReply;
 
     public RemoteBrain(AgentHandle handle) {
         this.handle = handle;
@@ -68,6 +74,7 @@ public final class RemoteBrain {
     /** Called once per server tick from {@link AgentHandle#tick(long)}. */
     public void tick(long now) {
         consumePending(now);
+        consumeReply();
 
         if (directive != null) {
             if (directive.expired(now)) {
@@ -114,6 +121,14 @@ public final class RemoteBrain {
      * @return false when a request is already in flight or the LLM is unusable
      */
     public boolean ask(String instruction) {
+        return ask(instruction, null);
+    }
+
+    /**
+     * Same as {@link #ask(String)}, but a text-only answer (no tool call) is echoed back to
+     * {@code requester} instead of vanishing into the log.
+     */
+    public boolean ask(String instruction, @Nullable ServerPlayer requester) {
         if (inFlight.get() || !LlmConfig.get().isUsable()) {
             return false;
         }
@@ -121,6 +136,7 @@ public final class RemoteBrain {
         lastSituation = situation;
         lastRequestTick = handle.context().tick();
         explicit = true;
+        requesterId = requester == null ? null : requester.getUUID();
         send(Prompts.system(handle.context()) + "\n\n" + situation, instruction);
         return true;
     }
@@ -177,6 +193,9 @@ public final class RemoteBrain {
                     AICoreLib.LOGGER.info("LLM returned no action ({} completion tokens): {}",
                             response.completionTokens(),
                             text.isEmpty() ? "<empty>" : text.substring(0, Math.min(160, text.length())));
+                    if (!text.isEmpty()) {
+                        pendingReply = text.substring(0, Math.min(300, text.length()));
+                    }
                 }
                 return;
             }
@@ -189,6 +208,28 @@ public final class RemoteBrain {
             pendingAction = actionId;
             pendingArgs = toTag(call.arguments());
         });
+    }
+
+    /**
+     * Delivers a text-only answer (the model talked instead of acting) to whoever typed
+     * {@code /aicorelib ask}. Runs on the server thread like everything else here.
+     */
+    private void consumeReply() {
+        String reply = pendingReply;
+        if (reply == null) {
+            return;
+        }
+        pendingReply = null;
+        java.util.UUID target = requesterId;
+        requesterId = null;
+        if (target == null) {
+            return;
+        }
+        ServerPlayer player = handle.mob().level().getServer().getPlayerList().getPlayer(target);
+        if (player != null) {
+            player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "[AICoreLib] " + handle.mob().getName().getString() + ": " + reply));
+        }
     }
 
     /** Moves a value from the HTTP thread onto the server thread. */

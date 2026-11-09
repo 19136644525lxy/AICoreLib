@@ -18,6 +18,7 @@ import java.util.UUID;
  * @param hops          how many times this AI has migrated between bodies
  * @param memorySummary short human readable memory carried through core migration
  * @param affection     0-100, used by social addons (Monsterheart et al.)
+ * @param paused        whether an admin froze this agent; the record survives, the brains do not
  */
 public record AgentRecord(
         String presetId,
@@ -27,7 +28,8 @@ public record AgentRecord(
         @Nullable Vec3 home,
         int hops,
         String memorySummary,
-        int affection) {
+        int affection,
+        boolean paused) {
 
     public static final String DEFAULT_PRESET = "aicorelib:guard";
 
@@ -36,11 +38,15 @@ public record AgentRecord(
 
     public static AgentRecord create(String presetId, @Nullable UUID owner, String entityType,
                                      long injectedAt, @Nullable Vec3 home) {
-        return new AgentRecord(presetId, owner, entityType, injectedAt, home, 0, "", 0);
+        return new AgentRecord(presetId, owner, entityType, injectedAt, home, 0, "", 0, false);
     }
 
     public AgentRecord movedTo(@Nullable UUID newOwner, long when, @Nullable Vec3 newHome) {
-        return new AgentRecord(presetId, newOwner, entityType, when, newHome, hops, memorySummary, affection);
+        return new AgentRecord(presetId, newOwner, entityType, when, newHome, hops, memorySummary, affection, false);
+    }
+
+    public AgentRecord withPaused(boolean value) {
+        return new AgentRecord(presetId, owner, entityType, injectedAt, home, hops, memorySummary, affection, value);
     }
 
     public CompoundTag save() {
@@ -59,6 +65,7 @@ public record AgentRecord(
         tag.putInt("hops", hops);
         tag.putString("memory", memorySummary);
         tag.putInt("affection", affection);
+        tag.putBoolean("paused", paused);
         return tag;
     }
 
@@ -75,6 +82,7 @@ public record AgentRecord(
                 home,
                 tag.getInt("hops"),
                 tag.getString("memory"),
-                tag.getInt("affection"));
+                tag.getInt("affection"),
+                tag.getBoolean("paused"));
     }
 }

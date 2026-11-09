@@ -67,12 +67,12 @@ public final class AgentHandle {
 
     /** Whether the remote brain currently owns the body and the claiming goal must stay on. */
     public boolean remoteActive() {
-        return remote.active();
+        return !record.paused() && remote.active();
     }
 
     /** The action the model ordered, or {@code null} when the rule brain is in charge. */
     public net.minecraft.resources.ResourceLocation remoteAction() {
-        return remote.activeAction();
+        return record.paused() ? null : remote.activeAction();
     }
 
     public AgentRecord record() {
@@ -109,6 +109,11 @@ public final class AgentHandle {
     /** Called once per server tick. */
     public void tick(long now) {
         context.setTick(now);
+        if (record.paused()) {
+            // Frozen on purpose: no perception, no orders, and the claiming goal stays off so
+            // vanilla behaviour (float, avoid water, wander) keeps the body alive.
+            return;
+        }
         try {
             if (--sensorCooldown <= 0) {
                 sensorCooldown = SENSOR_INTERVAL;

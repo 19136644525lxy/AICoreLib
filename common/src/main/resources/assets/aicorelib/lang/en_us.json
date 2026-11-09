@@ -14,5 +14,8 @@
   "message.aicorelib.not_a_mob": "Only mobs can be injected",
   "message.aicorelib.core_damaged": "This core is damaged",
   "message.aicorelib.core_installed": "AI core installed",
-  "message.aicorelib.already_agent": "That mob already has an AI"
+  "message.aicorelib.already_agent": "That mob already has an AI",
+  "message.aicorelib.limit_total": "Server agent limit reached",
+  "message.aicorelib.limit_owner": "You already own the maximum number of agents",
+  "message.aicorelib.denied_type": "That kind of mob cannot host an AI"
 }

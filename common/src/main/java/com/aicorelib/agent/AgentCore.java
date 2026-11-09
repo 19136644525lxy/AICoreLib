@@ -71,7 +71,8 @@ public final class AgentCore {
                 mob.position(),
                 snapshot.hops() + 1,
                 keepMemory(snapshot.memorySummary()),
-                Math.max(0, snapshot.affection() - AFFECTION_COST));
+                Math.max(0, snapshot.affection() - AFFECTION_COST),
+                false);
 
         if (!AgentService.inject(mob, moved)) {
             return false;

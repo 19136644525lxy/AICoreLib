@@ -65,6 +65,17 @@ public class AgentSavedData extends SavedData {
         return agents.get(uuid);
     }
 
+    /** How many agents a single player owns, for the per-owner budget. */
+    public int countOwnedBy(UUID owner) {
+        int count = 0;
+        for (AgentRecord record : agents.values()) {
+            if (owner.equals(record.owner())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public void put(UUID uuid, AgentRecord record) {
         agents.put(uuid, record);
         setDirty();
